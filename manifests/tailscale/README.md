@@ -1,0 +1,23 @@
+# tailscale-operator
+
+## Installation
+
+```
+$ helm upgrade \
+    --install \
+    tailscale-operator \
+    tailscale/tailscale-operator \
+    --namespace=tailscale \
+    --create-namespace \
+    --set-string oauth.clientId="<OAuth client ID>" \
+    --set-string oauth.clientSecret="<OAuth client secret>" \
+    --set-string apiServerProxyConfig.mode="noauth" \
+    --set-string apiServerProxyConfig.mode="true" \
+    --wait
+
+$ kubectl get proxygroup
+NAME       STATUS            URL                                 TYPE             AGE
+hnd1-kwo   ProxyGroupReady   https://hnd1-kwo.tail5b1c5.ts.net   kube-apiserver   20m
+
+$ tailscale configure kubeconfig https://hnd1-kwo.tail5b1c5.ts.net
+```

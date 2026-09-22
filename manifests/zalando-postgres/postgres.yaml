@@ -1,0 +1,51 @@
+apiVersion: "acid.zalan.do/v1"
+kind: postgresql
+metadata:
+  name: pg18
+spec:
+  enableLogicalBackup: false
+  enableConnectionPooler: true
+  enableReplicaConnectionPooler: true
+  connectionPooler:
+    numberOfInstances: 2
+    resources:
+      requests:
+        cpu: 50m
+        memory: 32Mi
+      limits:
+        cpu: "1"
+        memory: 128Mi
+  teamId: "acid"
+  volume:
+    size: 100Gi
+    storageClass: longhorn
+  resources:
+    requests:
+      memory: 1Gi
+      cpu: 100m
+    limits:
+      memory: 3Gi
+  numberOfInstances: 2
+  users:
+    zalando:
+      - superuser
+      - createdb
+  databases: {}
+  preparedDatabases: {}
+  postgresql:
+    version: "18"
+    parameters:
+      shared_buffers: 1GB
+      max_connections: '256'
+  patroni:
+    pg_hba:
+      - local   all             all                                   trust
+      - hostssl all             +zalandos    127.0.0.1/32       pam
+      - host    all             all                127.0.0.1/32       md5
+      - hostssl all             +zalandos    ::1/128            pam
+      - host    all             all                ::1/128            md5
+      - local   replication     standby                    trust
+      - hostssl replication     standby all                md5
+      - hostnossl all           all                all                md5
+      - hostssl all             +zalandos    all                pam
+      - hostssl all             all                all                md5
