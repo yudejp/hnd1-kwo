@@ -14,7 +14,7 @@
 ### Setup k3s worker
 
 ```
-$ ansible-playbook -i "hnd1kwoX.tun.y2e.org," playbooks/init-worker.yaml
+$ ansible-playbook -i "hnd1kwoX.tail5b1c5.ts.net," playbooks/init-worker.yaml
 ```
 
 ### Setup k3s agent
