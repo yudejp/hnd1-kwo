@@ -1,4 +1,4 @@
-# k8s.dr
+# hnd1-kwo
 
 🐙 Kubernetes manifests for DR availablity zone
 
