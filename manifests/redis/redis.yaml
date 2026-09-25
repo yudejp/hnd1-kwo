@@ -1,0 +1,31 @@
+# Standalone Redis for Misskey (misskey-y2e-org).
+# Misskey connects to redis.ot-operators.svc.cluster.local:6379 without a
+# password (manifests/misskey/default.yml); the operator names the client
+# Service after this CR, so the name must stay `redis`.
+#
+# On the DR site this instance stays idle until a switchover:
+# misskey-dr copies the misskey-y2e-org:* keys into it (dump-restore).
+# misskey-dr requires its Redis version to be >= the source's (nrt1).
+apiVersion: redis.redis.opstreelabs.in/v1beta2
+kind: Redis
+metadata:
+  name: redis
+  namespace: ot-operators
+spec:
+  kubernetesConfig:
+    image: quay.io/opstree/redis:v7.2.7
+    imagePullPolicy: IfNotPresent
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        memory: 1Gi
+  storage:
+    volumeClaimTemplate:
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 5Gi
