@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: meilisearch
+  labels:
+    app: meilisearch
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: meilisearch
+  template:
+    metadata:
+      labels:
+        app: meilisearch
+    spec:
+      dnsConfig:
+        searches:
+          - svc.cluster.local
+          - cluster.local
+        options:
+          - name: single-request-reopen
+          - name: use-vc
+          - name: ndots
+            value: "2"
+      containers:
+        - name: meilisearch
+          image: getmeili/meilisearch:v1.54.0
+          imagePullPolicy: IfNotPresent
+          command:
+            - /bin/sh
+            - /scripts/migration.sh
+          ports:
+            - name: http
+              containerPort: 7700
+          env:
+            - name: MEILI_MASTER_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: meilisearch-secret
+                  key: MEILI_MASTER_KEY
+            - name: MEILI_ENV
+              value: development
+            - name: MEILI_NO_ANALYTICS
+              value: "true"
+            - name: MEILI_DB_PATH
+              value: /meili-data/data
+            - name: MEILI_UPGRADE_DB
+              value: "true"
+          volumeMounts:
+            - name: meilisearch
+              mountPath: /meili-data
+            - name: migration
+              mountPath: /scripts/migration.sh
+              subPath: migration.sh
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "1Gi"
+      volumes:
+        - name: meilisearch
+          persistentVolumeClaim:
+            claimName: meilisearch
+        - name: migration
+          configMap:
+            name: meilisearch-migration
+            defaultMode: 0755
